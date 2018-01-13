@@ -2,10 +2,11 @@ import scrapy
 import logging
 from scrapy_splash import SplashRequest
 from hzdata.items import House
+from hzdata import settings
 
 class HouseSpider(scrapy.Spider):
     name = "house"
-    SPIDER_HOST = "http://x.x.x.x/web/"
+    SPIDER_HOST = settings.TARGET_URL
     start_urls = [SPIDER_HOST+"nowonsale.jsp", SPIDER_HOST+"presale.jsp"]
 
     def parse(self, response):
@@ -25,7 +26,7 @@ class HouseSpider(scrapy.Spider):
         for building in response.xpath("//div[@class='Salestable']//tr[8]//tr/td[6]/a/@href").extract():
             building = self.SPIDER_HOST + building
             # building = self.SPIDER_HOST + "salestable.jsp?buildingcode=201700002101&projectcode=2017000021"
-            building = self.SPIDER_HOST + "salestable.jsp?buildingcode=201600010901&projectcode=2016000109"
+            building = self.SPIDER_HOST + "salestable.jsp?buildingcode=201600000902&projectcode=2016000009"
             request = SplashRequest(building, self.parse_building, args={'wait': 0.5})
             request.meta['property_name'] = property_name
             request.meta['open_time'] = open_time

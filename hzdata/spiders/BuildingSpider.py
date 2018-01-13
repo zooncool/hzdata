@@ -2,12 +2,14 @@ import scrapy
 import logging
 from scrapy_splash import SplashRequest
 from urllib.parse import urlparse, parse_qs
+from hzdata import settings
 import hashlib
 import json
 
 class BuildingSpider(scrapy.Spider):
+
     name = "building"
-    SPIDER_HOST = "http://x.x.x.x/web/"
+    SPIDER_HOST = settings.TARGET_URL
     start_urls = [SPIDER_HOST + "nowonsale.jsp", SPIDER_HOST + "presale.jsp"]
 
     def parse(self, response):
@@ -49,10 +51,10 @@ class BuildingSpider(scrapy.Spider):
             if house_id is not None:
                 house_id = str(house_id).split("(")[1].split(")")[0].split(",")[0]
                 house_id_dict[house_id] = sale_state
-        print( sorted(house_id_dict.items(), key=lambda item: item[0]))
+        # print( sorted(house_id_dict.items(), key=lambda item: item[0]))
         # for house_temp in house_id_dict:
         #     logging.info(house_temp)
         # logging.info(house_id_dict)
         # md5 = hashlib.md5(house_id_dict)
-        # logging.info("property_name=%s,building name=%s,open_time=%s,project_code=%s,building_code=%s,md5=%s",
-        #              property_name, building_name, open_time, project_code, building_code, md5)
+        logging.info("property_name=%s,building name=%s,open_time=%s,project_code=%s,building_code=%s,md5=%s",
+                     property_name, building_name, open_time, project_code, building_code, 0)
