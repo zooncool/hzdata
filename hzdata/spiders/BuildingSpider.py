@@ -3,14 +3,18 @@ import logging
 from scrapy_splash import SplashRequest
 from urllib.parse import urlparse, parse_qs
 from hzdata import settings
+from hzdata.items import Building
 import hashlib
 import json
+
 
 class BuildingSpider(scrapy.Spider):
 
     name = "building"
     SPIDER_HOST = settings.TARGET_URL
     start_urls = [SPIDER_HOST + "nowonsale.jsp", SPIDER_HOST + "presale.jsp"]
+    # 可售ks,不可售bks,已收签约ysqy,现房已签约xfqy,已办证ybz
+    SALE_STATE_CONSTENT = {"ks": 0, "ysqy": 1, "xfqy": 2, "ybz": 3, "bks": 4}
 
     def parse(self, response):
         # follow links to project
@@ -25,25 +29,25 @@ class BuildingSpider(scrapy.Spider):
 
     def parse_property(self, response):
         property_name = response.xpath("//div[@class='Salestable']//tr[1]/td[1]/text()").extract_first()
-        open_time = response.xpath("//div[@class='Salestable']//tr[6]/td[1]/text()").extract_first()
+        open_date = response.xpath("//div[@class='Salestable']//tr[6]/td[1]/text()").extract_first()
         project_code = parse_qs(urlparse(str(response.url)).query)['ProjectCode'][0]
         for building in response.xpath("//div[@class='Salestable']//tr[8]//tr/td[6]/a/@href").extract():
             building = self.SPIDER_HOST + building
             request = SplashRequest(building, self.parse_building, args={'wait': 0.5})
             request.meta['property_name'] = property_name
-            request.meta['open_time'] = open_time
+            request.meta['open_date'] = open_date
             request.meta['project_code'] = project_code
             yield request
 
     def parse_building(self, response):
         property_name = response.meta['property_name']
-        open_time = response.meta['open_time']
         project_code = response.meta['project_code']
         building_name = response.xpath("//table[@class='tablelw']//tr[1]/td[3]/text()").extract_first()
+        building_name = str(building_name).replace("楼幢名称：", "")
         building_code = parse_qs(urlparse(str(response.url)).query)['buildingcode'][0]
+        open_date = response.meta['open_date']
         house_id_dict = {}
         for house in response.xpath("//table[2]//td"):
-            house_name = house.xpath("div[1]/text()").extract_first()
             sale_state_image = house.xpath("div[2]/img/@src").extract_first()
             if sale_state_image is not None:
                 sale_state = str(sale_state_image).split('/')[4].split(".")[0]
@@ -51,10 +55,19 @@ class BuildingSpider(scrapy.Spider):
             if house_id is not None:
                 house_id = str(house_id).split("(")[1].split(")")[0].split(",")[0]
                 house_id_dict[house_id] = sale_state
-        # print( sorted(house_id_dict.items(), key=lambda item: item[0]))
-        # for house_temp in house_id_dict:
-        #     logging.info(house_temp)
-        # logging.info(house_id_dict)
-        # md5 = hashlib.md5(house_id_dict)
-        logging.info("property_name=%s,building name=%s,open_time=%s,project_code=%s,building_code=%s,md5=%s",
-                     property_name, building_name, open_time, project_code, building_code, 0)
+        house_id_dict = sorted(house_id_dict.items(), key=lambda it: it[0])
+        houses = str(json.dumps(house_id_dict))
+        m = hashlib.md5()
+        m.update(houses.encode("utf-8"))
+        digest = m.hexdigest()
+        # logging.info("property_name=%s,building name=%s,open_date=%s,project_code=%s,building_code=%s,md5=%s",
+        #              property_name, building_name, open_date, project_code, building_code, digest)
+        item = Building()
+        item['project_code'] = project_code
+        item['property_name'] = property_name
+        item['building_code'] = building_code
+        item['building_name'] = building_name
+        item['open_date'] = open_date
+        item['houses'] = houses
+        item['digest'] = digest
+        return item

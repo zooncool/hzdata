@@ -4,6 +4,7 @@ from scrapy_splash import SplashRequest
 from hzdata.items import House
 from hzdata import settings
 
+
 class HouseSpider(scrapy.Spider):
     name = "house"
     SPIDER_HOST = settings.TARGET_URL
@@ -43,8 +44,8 @@ class HouseSpider(scrapy.Spider):
             if house_id is not None:
                 house_id = str(house_id).split("(")[1].split(")")[0].split(",")
                 house_url = "House.jsp?id="+house_id[0]+"&lcStr="+house_id[1]
-                logging.info("buildingName = %s, houseNum = %s, saleState = %s, houseId = %s", building_name, house_name,
-                             sale_state, house_id)
+                # logging.info("buildingName = %s, houseNum = %s, saleState = %s, houseId = %s", building_name, house_name,
+                #              sale_state, house_id)
                 yield response.follow(house_url, self.parse_house)
 
     def parse_house(self, response):
@@ -96,30 +97,3 @@ class HouseSpider(scrapy.Spider):
         item['is_seal'] = is_seal
         item['property_name'] = property_name
         return item
-
-        # house = ItemLoader(item=House(), response=response)
-        # house.add_xpath("property_name", "//table[1]//tr[2]/td[1]/text()")
-        # house.add_xpath("building_name", "//table[1]//tr[2]/td[1]/text()")
-        # house.add_xpath("house_name", "//table[1]//tr[3]/td[1]/text()")
-        # house.add_xpath("plan_purpose", "//table[1]//tr[3]/td[2]/text()")
-        # house.add_xpath("house_purpose", "//table[1]//tr[4]/td[1]/text()")
-        # house.add_xpath("floor", "//table[1]//tr[5]/td[1]/text()")
-        # house.add_xpath("floor_height", "//table[1]//tr[5]/td[2]/text()")
-        # house.add_xpath("house_orientation", "//table[1]//tr[6]/td[1]/text()")
-        # house.add_xpath("house_construction", "//table[1]//tr[6]/td[2]/text()")
-        # house.add_xpath("is_public", "//table[1]//tr[7]/td[1]/text()")
-        # house.add_xpath("is_back_moving", "//table[1]//tr[7]/td[2]/text()")
-        # house.add_xpath("is_oneself", "//table[1]//tr[8]/td[1]/text()")
-        # house.add_xpath("is_pre_sell", "//table[1]//tr[8]/td[2]/text()")
-        # house.add_xpath("price", "//table[1]//tr[9]/td[1]/text()")
-        # house.add_xpath("pre_total_square", "//table[1]//tr[11]/td[1]/text()")
-        # house.add_xpath("actual_total_square", "//table[1]//tr[11]/td[2]/text()")
-        # house.add_xpath("pre_inner_square", "//table[1]//tr[12]/td[1]/text()")
-        # house.add_xpath("actual_inner_square", "//table[1]//tr[12]/td[2]/text()")
-        # house.add_xpath("pre_public_square", "//table[1]//tr[13]/td[1]/text()")
-        # house.add_xpath("actual_public_square", "//table[1]//tr[13]/td[2]/text()")
-        # house.add_xpath("is_pledge", "//table[1]//tr[15]/td[1]/text()")
-        # house.add_xpath("is_seal", "//table[1]//tr[15]/td[2]/text()")
-        # logging.info("propertyName=%s,buildingName=%s,houseName=%s,price=%s", property_name, building_name, house_name,
-        #              floor_height)
-        # return house.load_item()

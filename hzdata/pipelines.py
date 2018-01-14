@@ -10,6 +10,8 @@ from datetime import *
 
 from hzdata import settings
 from hzdata.items import House
+from hzdata.items import Building
+
 
 class HousePipeline(object):
     def __init__(self):
@@ -58,6 +60,25 @@ class HousePipeline(object):
                      floor_height, house_orientation, house_construction, is_public, is_back_moving, is_oneself,
                      is_pre_sell, price, pre_total_square, actual_total_square, pre_inner_square, actual_inner_square,
                      pre_public_square, actual_public_square, is_pledge, is_seal))
+                self.connect.commit()
+            except Exception as error:
+                logging.error(error)
+            return item
+        elif item.__class__ == Building:
+            try:
+                project_code = item['project_code']
+                building_code = item['building_code']
+                property_name = item['property_name']
+                building_name = item['building_name']
+                open_date = item['open_date']
+                houses = item['houses']
+                digest = item['digest']
+                gmt_created = datetime.now()
+                self.cursor.execute(
+                    """insert into building(gmt_created, project_code, building_code, property_name, building_name, 
+                    open_date, houses, digest) 
+                    value (%s, %s,%s,%s,%s,%s,%s,%s)""",
+                    (gmt_created, project_code, building_code, property_name, building_name, open_date, houses, digest))
                 self.connect.commit()
             except Exception as error:
                 logging.error(error)

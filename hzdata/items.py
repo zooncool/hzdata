@@ -34,3 +34,14 @@ class House(scrapy.Item):
     is_pledge = scrapy.Field()
     is_seal = scrapy.Field()
     pass
+
+
+class Building(scrapy.Item):
+    project_code = scrapy.Field()
+    building_code = scrapy.Field()
+    property_name = scrapy.Field()
+    building_name = scrapy.Field()
+    open_date = scrapy.Field()
+    houses = scrapy.Field()
+    digest = scrapy.Field()
+    pass
