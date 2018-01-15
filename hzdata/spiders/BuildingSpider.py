@@ -5,7 +5,6 @@ from urllib.parse import urlparse, parse_qs
 from hzdata import settings
 from hzdata.items import Building
 import hashlib
-import json
 
 
 class BuildingSpider(scrapy.Spider):
