@@ -17,15 +17,11 @@ class BuildingSpider(scrapy.Spider):
     SALE_STATE_CONSTENT = {"ks": 0, "ysqy": 1, "xfqy": 2, "ybz": 3, "bks": 4}
 
     def parse(self, response):
-        # follow links to project
-        #  pages
         for href in response.xpath("//div[@class='answer']//tr/td[3]/a/@href").extract():
             yield response.follow(href, self.parse_property)
 
-        # follow pagination links
-        # for href in response.xpath("//div[@class='paging']/a/@href").extract():
-        #     # self.logger.info("page url is %s", href)
-        #     yield response.follow(href, self.parse)
+        for href in response.xpath("//div[@class='paging']/a/@href").extract():
+            yield response.follow(href, self.parse)
 
     def parse_property(self, response):
         property_name = response.xpath("//div[@class='Salestable']//tr[1]/td[1]/text()").extract_first()
@@ -56,12 +52,14 @@ class BuildingSpider(scrapy.Spider):
                 house_id = str(house_id).split("(")[1].split(")")[0].split(",")[0]
                 house_id_dict[house_id] = sale_state
         house_id_dict = sorted(house_id_dict.items(), key=lambda it: it[0])
-        houses = str(json.dumps(house_id_dict))
+        houses_temp = ""
+        for k, v in house_id_dict:
+            houses_temp += k + "|" + v + ","
+        houses = houses_temp
+        logging.info(houses_temp)
         m = hashlib.md5()
         m.update(houses.encode("utf-8"))
         digest = m.hexdigest()
-        # logging.info("property_name=%s,building name=%s,open_date=%s,project_code=%s,building_code=%s,md5=%s",
-        #              property_name, building_name, open_date, project_code, building_code, digest)
         item = Building()
         item['project_code'] = project_code
         item['property_name'] = property_name
