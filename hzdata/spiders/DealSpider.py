@@ -5,17 +5,31 @@ from urllib.parse import urlparse, parse_qs
 from hzdata import settings
 from hzdata.items import Building
 import hashlib
+import pymysql
 
 
-class BuildingSpider(scrapy.Spider):
+class DealSpider(scrapy.Spider):
 
-    name = "building"
+    name = "deal"
     SPIDER_HOST = settings.TARGET_URL
     start_urls = [SPIDER_HOST + "nowonsale.jsp", SPIDER_HOST + "presale.jsp"]
     # 可售ks,不可售bks,已收签约ysqy,现房已签约xfqy,已办证ybz
     SALE_STATE_CONSTENT = {"ks": 0, "ysqy": 1, "xfqy": 2, "ybz": 3, "bks": 4}
 
+    def __init__(self):
+        self.connect = pymysql.connect(
+            host=settings.MYSQL_HOST,
+            db=settings.MYSQL_DBNAME,
+            user=settings.MYSQL_USER,
+            passwd=settings.MYSQL_PASSWD,
+            charset='utf8',
+            use_unicode=True)
+        self.cursor = self.connect.cursor()
+
     def parse(self, response):
+
+        self.cursor.execute("")
+
         for href in response.xpath("//div[@class='answer']//tr/td[3]/a/@href").extract():
             yield response.follow(href, self.parse_property)
 
@@ -55,6 +69,7 @@ class BuildingSpider(scrapy.Spider):
         for k, v in house_id_dict:
             houses_temp += k + "|" + v + ","
         houses = houses_temp
+        logging.info(houses_temp)
         m = hashlib.md5()
         m.update(houses.encode("utf-8"))
         digest = m.hexdigest()
