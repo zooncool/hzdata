@@ -1,6 +1,15 @@
 # hzdata
 python project
 
+#构建mysql
+docker pull mysql
+docker run -v /opt/data/mysql:/var/lib/mysql -p 3307:3306 --name xxxx -e MYSQL_ROOT_PASSWORD=xxxx -d mysql
+
+#构建splash
+docker pull scrapinghub/splash
+docker run -d -p 8050:8050 -p 5023:5023 scrapinghub/splash
+
+#建表sql
 CREATE TABLE `building` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键',
   `gmt_created` date DEFAULT NULL COMMENT '创建时间',
@@ -69,4 +78,5 @@ CREATE TABLE `contract` (
   KEY `idx_house_code` (`house_code`),
   KEY `idx_contract_date` (`contract_date`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1432 DEFAULT CHARSET=utf8;
+
 
