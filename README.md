@@ -50,3 +50,23 @@ CREATE TABLE `house` (
   KEY `idx_building_name` (`building_name`),
   KEY `idx_open_date` (`open_date`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+CREATE TABLE `contract` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键id',
+  `gmt_created` datetime DEFAULT NULL COMMENT '创建时间',
+  `gmt_modified` datetime DEFAULT NULL COMMENT '修改时间',
+  `project_code` varchar(16) CHARACTER SET latin1 DEFAULT NULL COMMENT '项目id',
+  `building_code` varchar(16) CHARACTER SET latin1 DEFAULT NULL COMMENT '楼栋id',
+  `property_name` varchar(128) CHARACTER SET latin1 DEFAULT NULL COMMENT '项目名称',
+  `building_name` varchar(128) CHARACTER SET latin1 DEFAULT NULL COMMENT '楼栋名称',
+  `house_code` varchar(16) CHARACTER SET latin1 DEFAULT NULL COMMENT '房屋id',
+  `new_state` varchar(8) CHARACTER SET latin1 DEFAULT NULL COMMENT '新交易状态',
+  `old_state` varchar(8) CHARACTER SET latin1 DEFAULT NULL COMMENT '旧交易状态',
+  `contract_date` date DEFAULT NULL COMMENT '交易时间',
+  PRIMARY KEY (`id`),
+  KEY `idx_project_code` (`project_code`),
+  KEY `idx_building_code` (`building_code`),
+  KEY `idx_house_code` (`house_code`),
+  KEY `idx_contract_date` (`contract_date`)
+) ENGINE=InnoDB AUTO_INCREMENT=1432 DEFAULT CHARSET=utf8;
+
