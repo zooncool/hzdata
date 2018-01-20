@@ -77,6 +77,6 @@ CREATE TABLE `contract` (
   KEY `idx_building_code` (`building_code`),
   KEY `idx_house_code` (`house_code`),
   KEY `idx_contract_date` (`contract_date`)
-) ENGINE=InnoDB AUTO_INCREMENT=1432 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 
 
