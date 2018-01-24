@@ -49,7 +49,7 @@ class HousePipeline(object):
                 actual_public_square = float(str(item['actual_public_square'])) if item['actual_public_square'] is not None else 0
                 is_pledge = 1 if item['is_pledge'] == "是" else 0
                 is_seal = 1 if item['is_seal'] == "是" else 0
-                gmt_created = datetime.now()
+                gmt_created = datetime.now().date()
                 self.cursor.execute(
                     """insert into house(gmt_created, property_name, building_name, house_name, plan_purpose, house_purpose, floor, 
                     floor_height, house_orientation, house_construction, is_public, is_back_moving, is_oneself, 
