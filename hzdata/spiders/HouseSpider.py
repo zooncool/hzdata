@@ -3,6 +3,7 @@ import logging
 from scrapy_splash import SplashRequest
 from hzdata.items import House
 from hzdata import settings
+from urllib.parse import urlparse, parse_qs
 
 
 class HouseSpider(scrapy.Spider):
@@ -11,45 +12,45 @@ class HouseSpider(scrapy.Spider):
     start_urls = [SPIDER_HOST+"nowonsale.jsp", SPIDER_HOST+"presale.jsp"]
 
     def parse(self, response):
-        # follow links to project
-        #  pages
         for href in response.xpath("//div[@class='answer']//tr/td[3]/a/@href").extract():
             yield response.follow(href, self.parse_property)
 
         # follow pagination links
         # for href in response.xpath("//div[@class='paging']/a/@href").extract():
-        #     # self.logger.info("page url is %s", href)
         #     yield response.follow(href, self.parse)
 
     def parse_property(self, response):
-        property_name = response.xpath("//div[@class='Salestable']//tr[1]/td[1]/text()").extract_first()
-        open_time = response.xpath("//div[@class='Salestable']//tr[6]/td[1]/text()").extract_first()
+        open_date = response.xpath("//div[@class='Salestable']//tr[6]/td[1]/text()").extract_first().strip()
+        open_date = str(open_date).replace('\n', '').strip() if open_date is not None else None
+        project_code = parse_qs(urlparse(str(response.url)).query)['ProjectCode'][0]
         for building in response.xpath("//div[@class='Salestable']//tr[8]//tr/td[6]/a/@href").extract():
             building = self.SPIDER_HOST + building
-            # building = self.SPIDER_HOST + "salestable.jsp?buildingcode=201700002101&projectcode=2017000021"
-            building = self.SPIDER_HOST + "salestable.jsp?buildingcode=201600000902&projectcode=2016000009"
             request = SplashRequest(building, self.parse_building, args={'wait': 0.5})
-            request.meta['property_name'] = property_name
-            request.meta['open_time'] = open_time
+            request.meta['open_date'] = open_date
+            request.meta['project_code'] = project_code
             yield request
 
     def parse_building(self, response):
-        building_name = response.xpath("//table[@class='tablelw']//tr[1]/td[3]/text()").extract_first()
+        project_code = response.meta['project_code']
+        building_code = parse_qs(urlparse(str(response.url)).query)['buildingcode'][0]
+        open_date = response.meta['open_date']
         for house in response.xpath("//table[2]//td"):
-            house_name = house.xpath("div[1]/text()").extract_first()
-            sale_state_image = house.xpath("div[2]/img/@src").extract_first()
-            if sale_state_image is not None:
-                sale_state = str(sale_state_image).split('/')[4].split(".")[0]
             house_id = house.xpath("div[2]/@onclick").extract_first()
             if house_id is not None:
                 house_id = str(house_id).split("(")[1].split(")")[0].split(",")
                 house_url = "House.jsp?id="+house_id[0]+"&lcStr="+house_id[1]
-                # logging.info("buildingName = %s, houseNum = %s, saleState = %s, houseId = %s", building_name, house_name,
-                #              sale_state, house_id)
-                yield response.follow(house_url, self.parse_house)
+                request = response.follow(house_url, self.parse_house)
+                request.meta['open_date'] = open_date
+                request.meta['project_code'] = project_code
+                request.meta['building_code'] = building_code
+                request.meta['house_code'] = house_id[0]
+                yield request
 
     def parse_house(self, response):
         item = House()
+        project_code = response.meta['project_code']
+        building_code = response.meta['building_code']
+        house_code = response.meta['house_code']
         property_name = response.xpath("//table[1]//tr[2]/td[1]/text()").extract_first().strip()
         building_name = response.xpath("//table[1]//tr[2]/td[2]/text()").extract_first().strip()
         house_name = response.xpath("//table[1]//tr[3]/td[1]/text()").extract_first().strip()
@@ -73,6 +74,9 @@ class HouseSpider(scrapy.Spider):
         is_pledge = response.xpath("//table[1]//tr[15]/td[1]/text()").extract_first().strip()
         is_seal = response.xpath("//table[1]//tr[15]/td[2]/text()").extract_first().strip()
 
+        item['project_code'] = project_code
+        item['building_code'] = building_code
+        item['house_code'] = house_code
         item['property_name'] = property_name
         item['building_name'] = building_name
         item['house_name'] = house_name

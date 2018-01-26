@@ -11,6 +11,9 @@ import scrapy
 class House(scrapy.Item):
     # define the fields for your item here like:
     # name = scrapy.Field()
+    project_code = scrapy.Field()
+    building_code = scrapy.Field()
+    house_code = scrapy.Field()
     property_name = scrapy.Field()
     building_name = scrapy.Field()
     house_name = scrapy.Field()

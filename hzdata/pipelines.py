@@ -27,6 +27,9 @@ class HousePipeline(object):
     def process_item(self, item, spider):
         if item.__class__ == House:
             try:
+                project_code = str(item['project_code'])
+                building_code = str(item['building_code'])
+                house_code = str(item['house_code'])
                 property_name = str(item['property_name'])
                 building_name = str(item['building_name'])
                 house_name = str(item['house_name'])
@@ -51,12 +54,14 @@ class HousePipeline(object):
                 is_seal = 1 if item['is_seal'] == "是" else 0
                 gmt_created = datetime.now().date()
                 self.cursor.execute(
-                    """insert into house(gmt_created, property_name, building_name, house_name, plan_purpose, house_purpose, floor, 
+                    """insert into house(gmt_created, project_code,building_code,house_code,property_name, 
+                    building_name, house_name, plan_purpose, house_purpose, floor, 
                     floor_height, house_orientation, house_construction, is_public, is_back_moving, is_oneself, 
                     is_pre_sell, price, pre_total_square, actual_total_square, pre_inner_square, actual_inner_square, 
                     pre_public_square, actual_public_square, is_pledge, is_seal) 
                     value (%s, %s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)""",
-                    (gmt_created, property_name, building_name, house_name, plan_purpose, house_purpose, floor,
+                    (gmt_created, project_code, building_code, house_code, property_name, building_name, house_name,
+                     plan_purpose, house_purpose, floor,
                      floor_height, house_orientation, house_construction, is_public, is_back_moving, is_oneself,
                      is_pre_sell, price, pre_total_square, actual_total_square, pre_inner_square, actual_inner_square,
                      pre_public_square, actual_public_square, is_pledge, is_seal))
