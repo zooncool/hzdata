@@ -23,17 +23,17 @@ class Analysis(HousePipeline):
               COUNT(digest) cnt 
             FROM
               building 
-            WHERE gmt_created >= DATE_FORMAT(DATE_ADD(NOW(),INTERVAL 0 DAY),'%Y-%m-%d')
+            WHERE gmt_created >= DATE_FORMAT(DATE_ADD(NOW(),INTERVAL -1 DAY),'%Y-%m-%d')
             GROUP BY building_code,digest 
             HAVING COUNT(digest) < 2 
             ORDER BY bc
-            ) t) AND gmt_created >= DATE_FORMAT(DATE_ADD(NOW(),INTERVAL 0 DAY),'%Y-%m-%d')
+            ) t) AND gmt_created >= DATE_FORMAT(DATE_ADD(NOW(),INTERVAL -1 DAY),'%Y-%m-%d')
         ORDER BY building_code 
         """
         save_sql = """
-        insert into contract(gmt_created,project_code,building_code, house_code,new_state, 
+        insert into contract(gmt_created,project_code,building_code,property_name,building_name,house_code,new_state, 
                     old_state, contract_date) 
-                    value (%s,%s,%s,%s,%s,%s,%s)"""
+                    value (%s,%s,%s,%s,%s,%s,%s,%s,%s)"""
         try:
             self.cursor.execute(analyze_sql)
             buildings_records = self.cursor.fetchall()
@@ -59,8 +59,8 @@ class Analysis(HousePipeline):
                             house_code = str(house).split("|")[0]
                             new_state = str(house).split("|")[1]
                             old_state = str(house_temp).split("|")[1]
-                            self.cursor.execute(save_sql, (datetime.now(), project_code, building_code, house_code,
-                                                           new_state, old_state, yesterday))
+                            self.cursor.execute(save_sql, (datetime.now(), project_code, building_code, property_name,
+                                                           building_name, house_code, new_state, old_state, yesterday))
 
                             # print(project_code, building_code, house_code, property_name, building_name, new_state, old_state)
             self.connect.commit()
