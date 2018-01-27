@@ -20,27 +20,22 @@ class HouseSpider(scrapy.Spider):
         #     yield response.follow(href, self.parse)
 
     def parse_property(self, response):
-        open_date = response.xpath("//div[@class='Salestable']//tr[6]/td[1]/text()").extract_first().strip()
-        open_date = str(open_date).replace('\n', '').strip() if open_date is not None else None
         project_code = parse_qs(urlparse(str(response.url)).query)['ProjectCode'][0]
         for building in response.xpath("//div[@class='Salestable']//tr[8]//tr/td[6]/a/@href").extract():
             building = self.SPIDER_HOST + building
             request = SplashRequest(building, self.parse_building, args={'wait': 0.5})
-            request.meta['open_date'] = open_date
             request.meta['project_code'] = project_code
             yield request
 
     def parse_building(self, response):
         project_code = response.meta['project_code']
         building_code = parse_qs(urlparse(str(response.url)).query)['buildingcode'][0]
-        open_date = response.meta['open_date']
         for house in response.xpath("//table[2]//td"):
             house_id = house.xpath("div[2]/@onclick").extract_first()
             if house_id is not None:
                 house_id = str(house_id).split("(")[1].split(")")[0].split(",")
                 house_url = "House.jsp?id="+house_id[0]+"&lcStr="+house_id[1]
                 request = response.follow(house_url, self.parse_house)
-                request.meta['open_date'] = open_date
                 request.meta['project_code'] = project_code
                 request.meta['building_code'] = building_code
                 request.meta['house_code'] = house_id[0]
@@ -99,5 +94,5 @@ class HouseSpider(scrapy.Spider):
         item['actual_public_square'] = actual_public_square
         item['is_pledge'] = is_pledge
         item['is_seal'] = is_seal
-        item['property_name'] = property_name
+        # logging.info("project=%s,building%s,house=%s,price=%s", project_code, building_code, house_code,price)
         return item

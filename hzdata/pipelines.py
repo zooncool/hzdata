@@ -59,7 +59,7 @@ class HousePipeline(object):
                     floor_height, house_orientation, house_construction, is_public, is_back_moving, is_oneself, 
                     is_pre_sell, price, pre_total_square, actual_total_square, pre_inner_square, actual_inner_square, 
                     pre_public_square, actual_public_square, is_pledge, is_seal) 
-                    value (%s, %s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)""",
+                    value (%s, %s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)""",
                     (gmt_created, project_code, building_code, house_code, property_name, building_name, house_name,
                      plan_purpose, house_purpose, floor,
                      floor_height, house_orientation, house_construction, is_public, is_back_moving, is_oneself,
