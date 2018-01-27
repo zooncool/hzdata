@@ -1,3 +1,4 @@
 #!/usr/bin/env bash
 echo 'begin to spider building data...'
-nohup python /usr/project/hzdata/building.py > /usr/project/hzdata/log/building.log 2>&1 &
+cd /usr/project/hzdata
+nohup python building.py > log/building.log 2>&1 &
