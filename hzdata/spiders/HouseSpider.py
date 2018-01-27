@@ -16,8 +16,8 @@ class HouseSpider(scrapy.Spider):
             yield response.follow(href, self.parse_property)
 
         # follow pagination links
-        # for href in response.xpath("//div[@class='paging']/a/@href").extract():
-        #     yield response.follow(href, self.parse)
+        for href in response.xpath("//div[@class='paging']/a/@href").extract():
+            yield response.follow(href, self.parse)
 
     def parse_property(self, response):
         project_code = parse_qs(urlparse(str(response.url)).query)['ProjectCode'][0]
