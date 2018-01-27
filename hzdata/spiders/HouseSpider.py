@@ -23,7 +23,6 @@ class HouseSpider(scrapy.Spider):
         project_code = parse_qs(urlparse(str(response.url)).query)['ProjectCode'][0]
         for building in response.xpath("//div[@class='Salestable']//tr[8]//tr/td[6]/a/@href").extract():
             building = self.SPIDER_HOST + building
-            building = self.SPIDER_HOST + "salestable.jsp?buildingcode=LP1700007&projectcode=2016000141"
             request = SplashRequest(building, self.parse_building, args={'wait': 0.5})
             request.meta['project_code'] = project_code
             yield request
