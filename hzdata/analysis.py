@@ -69,5 +69,6 @@ class Analysis(HousePipeline):
         self.connect.close()
 
 
-a = Analysis()
-a.progress()
+if __name__ == '__main__':
+    a = Analysis()
+    a.progress()

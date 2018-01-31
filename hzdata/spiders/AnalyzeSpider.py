@@ -1,4 +1,5 @@
 import logging
+import pymysql
 from datetime import *
 import scrapy
 from hzdata import settings
@@ -9,6 +10,16 @@ class AnalyzeSpider(scrapy.Spider):
     name = "analyze"
     SPIDER_HOST = settings.TARGET_URL
     start_urls = [SPIDER_HOST + "nowonsale.jsp"]
+
+    def __init__(self):
+        self.connect = pymysql.connect(
+            host=settings.MYSQL_HOST,
+            db=settings.MYSQL_DBNAME,
+            user=settings.MYSQL_USER,
+            passwd=settings.MYSQL_PASSWD,
+            charset='utf8',
+            use_unicode=True)
+        self.cursor = self.connect.cursor()
 
     def parse(self, response):
         analyze_day = int(settings.SPIDER_DAY)
