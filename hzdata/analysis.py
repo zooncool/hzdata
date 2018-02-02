@@ -1,13 +1,19 @@
-import logging
+# -*- coding: utf-8 -*-
+import sys
+sys.path.append('.')
+from hzdata import settings
 from hzdata.pipelines import HousePipeline
+import logging
 from datetime import *
 
 
 class Analysis(HousePipeline):
 
     def progress(self):
+        analyze_day = 0 - int(settings.SPIDER_DAY)
+        pre_day = int(analyze_day - 1)
         today = date.today()
-        yesterday = today - timedelta(days=1)
+        yesterday = today + timedelta(days=(analyze_day-1))
         analyze_sql = """
         SELECT 
           gmt_created,project_code,building_code,houses,property_name,building_name  
@@ -23,17 +29,23 @@ class Analysis(HousePipeline):
               COUNT(digest) cnt 
             FROM
               building 
-            WHERE gmt_created >= DATE_FORMAT(DATE_ADD(NOW(),INTERVAL -1 DAY),'%Y-%m-%d')
+            WHERE gmt_created >= DATE_FORMAT(DATE_ADD(NOW(),INTERVAL %d DAY),'%%Y-%%m-%%d')
+            AND gmt_created <= DATE_FORMAT(DATE_ADD(NOW(),INTERVAL %d DAY),'%%Y-%%m-%%d')
             GROUP BY building_code,digest 
             HAVING COUNT(digest) < 2 
             ORDER BY bc
-            ) t) AND gmt_created >= DATE_FORMAT(DATE_ADD(NOW(),INTERVAL -1 DAY),'%Y-%m-%d')
+            ) t) AND gmt_created >= DATE_FORMAT(DATE_ADD(NOW(),INTERVAL %d DAY),'%%Y-%%m-%%d')
+            AND gmt_created <= DATE_FORMAT(DATE_ADD(NOW(),INTERVAL %d DAY),'%%Y-%%m-%%d')
         ORDER BY building_code 
-        """
+        """ % (pre_day, analyze_day, pre_day, analyze_day)
         save_sql = """
         insert into contract(gmt_created,project_code,building_code,property_name,building_name,house_code,new_state, 
                     old_state, contract_date) 
                     value (%s,%s,%s,%s,%s,%s,%s,%s,%s)"""
+        delete_houses = """
+        DELETE FROM house WHERE DATE_FORMAT(gmt_created,'%Y-%m-%d') = DATE_FORMAT(DATE_ADD(NOW(),INTERVAL -7 DAY),
+        '%Y-%m-%d')
+        """
         try:
             self.cursor.execute(analyze_sql)
             buildings_records = self.cursor.fetchall()
@@ -61,8 +73,7 @@ class Analysis(HousePipeline):
                             old_state = str(house_temp).split("|")[1]
                             self.cursor.execute(save_sql, (datetime.now(), project_code, building_code, property_name,
                                                            building_name, house_code, new_state, old_state, yesterday))
-
-                            # print(project_code, building_code, house_code, property_name, building_name, new_state, old_state)
+            self.cursor.execute(delete_houses)
             self.connect.commit()
         except Exception as error:
             logging.error(error)
