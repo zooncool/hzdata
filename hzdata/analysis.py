@@ -43,7 +43,7 @@ class Analysis(HousePipeline):
                     old_state, contract_date) 
                     value (%s,%s,%s,%s,%s,%s,%s,%s,%s)"""
         delete_houses = """
-        DELETE FROM house WHERE DATE_FORMAT(gmt_created,'%Y-%m-%d') = DATE_FORMAT(DATE_ADD(NOW(),INTERVAL -7 DAY),
+        DELETE FROM house WHERE DATE_FORMAT(gmt_created,'%Y-%m-%d') = DATE_FORMAT(DATE_ADD(NOW(),INTERVAL -3 DAY),
         '%Y-%m-%d')
         """
         try:
