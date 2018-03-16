@@ -26,6 +26,17 @@ class Analysis(HousePipeline):
         insert into contract(gmt_created,project_code,building_code,property_name,building_name,house_code,new_state, 
                     old_state, contract_date) 
                     value (%s,%s,%s,%s,%s,%s,%s,%s,%s)"""
+        house_new_select_sql = """
+        SELECT project_code,building_code,property_name,building_name,houses FROM building 
+        WHERE gmt_created = DATE_FORMAT(DATE_ADD(NOW(),INTERVAL %d DAY),'%%Y-%%m-%%d')  
+        AND building_code NOT IN (
+        SELECT building_code FROM building 
+        WHERE gmt_created = DATE_FORMAT(DATE_ADD(NOW(),INTERVAL %d DAY),'%%Y-%%m-%%d')
+        )
+        """ % (analyze_day, pre_day)
+        house_new_save_sql = """
+        insert into house_daily_new(gmt_created,project_code,building_code,property_name,building_name,house_code, 
+        add_date) value (%s,%s,%s,%s,%s,%s,%s)"""
         delete_houses = """
         DELETE FROM house WHERE DATE_FORMAT(gmt_created,'%Y-%m-%d') = DATE_FORMAT(DATE_ADD(NOW(),INTERVAL -3 DAY),
         '%Y-%m-%d')
@@ -35,6 +46,8 @@ class Analysis(HousePipeline):
             current_buildings = self.cursor.fetchall()
             self.cursor.execute(previous_sql)
             previous_buildings = self.cursor.fetchall()
+            self.cursor.execute(house_new_select_sql)
+            new_buildings = self.cursor.fetchall()
             for current_building in current_buildings:
                 cur_project_code = current_building[0]
                 cur_building_code = current_building[1]
@@ -58,6 +71,19 @@ class Analysis(HousePipeline):
                                                 (datetime.now(), cur_project_code, cur_building_code,
                                                  cur_property_name, cur_building_name, house_code, new_state,
                                                  old_state, yesterday))
+            if len(new_buildings):
+                for new_building in new_buildings:
+                    new_project_code = new_building[0]
+                    new_building_code = new_building[1]
+                    new_property_name = new_building[2]
+                    new_building_name = new_building[3]
+                    new_houses = new_building[4]
+                    new_house_array = str(new_houses).split(",")
+                    for index, new_house in enumerate(new_house_array):
+                        new_house_code = str(new_house).split("|")[0]
+                        self.cursor.execute(house_new_save_sql,
+                                            (datetime.now(), new_project_code, new_building_code,
+                                             new_property_name, new_building_name, new_house_code, yesterday))
             self.cursor.execute(delete_houses)
             self.connect.commit()
         except Exception as error:
