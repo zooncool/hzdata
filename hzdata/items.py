@@ -44,6 +44,7 @@ class Building(scrapy.Item):
     building_code = scrapy.Field()
     property_name = scrapy.Field()
     building_name = scrapy.Field()
+    project_area = scrapy.Field()
     open_date = scrapy.Field()
     houses = scrapy.Field()
     digest = scrapy.Field()

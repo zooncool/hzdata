@@ -7,28 +7,28 @@ from hzdata.items import Building
 import hashlib
 
 
-class BuildingSpider(scrapy.Spider):
+class BLBuildingSpider(scrapy.Spider):
 
-    name = "building"
-    SPIDER_HOST = settings.TARGET_URL
+    name = "bl_building"
+    SPIDER_HOST = settings.TARGET_BL_URL
     start_urls = [SPIDER_HOST + "nowonsale.jsp", SPIDER_HOST + "presale.jsp"]
     # 可售ks,不可售bks,已收签约ysqy,现房已签约xfqy,已办证ybz
-    SALE_STATE_CONSTENT = {"ks": 0, "ysqy": 1, "xfqy": 2, "ybz": 3, "bks": 4}
+    SALE_STATE_CONSTENT = {"xfds": 0, "ysqy": 1, "xfyqy": 2, "ybz": 3, "bks": 4, "bzz": 5}
 
     def parse(self, response):
-        for href in response.xpath("//div[@class='answer']//tr/td[3]/a/@href").extract():
+        for href in response.xpath("//div[@id='Searchresults']//tr/td[3]/a/@href").extract():
             yield response.follow(href, self.parse_property)
 
-        for href in response.xpath("//div[@class='paging']/a/@href").extract():
+        for href in response.xpath("//div[@id='Searchresults']//tr[last()]/td/a/@href").extract():
             yield response.follow(href, self.parse)
 
     def parse_property(self, response):
-        property_name = response.xpath("//div[@class='Salestable']//tr[1]/td[1]/text()").extract_first()
-        open_date = response.xpath("//div[@class='Salestable']//tr[6]/td[1]/text()").extract_first().strip()
+        property_name = response.xpath("//div[@class='Searchbox']//tr[1]/td[1]/text()").extract_first()
+        open_date = response.xpath("//div[@class='Searchbox']//tr[7]/td[1]/text()").extract_first().strip()
         open_date = str(open_date).replace('\n', '').strip() if open_date is not None else None
         project_code = parse_qs(urlparse(str(response.url)).query)['ProjectCode'][0]
-        project_area = "惠城区"
-        for building in response.xpath("//div[@class='Salestable']//tr[8]//tr/td[6]/a/@href").extract():
+        project_area = "博罗县"
+        for building in response.xpath("//div[@class='Searchbox']//tr[10]//tr/td[6]/a/@href").extract():
             building = self.SPIDER_HOST + building
             request = SplashRequest(building, self.parse_building, args={'wait': 0.5})
             request.meta['property_name'] = property_name
@@ -57,6 +57,10 @@ class BuildingSpider(scrapy.Spider):
         house_id_dict = sorted(house_id_dict.items(), key=lambda it: it[0])
         houses_temp = ""
         for k, v in house_id_dict:
+            v = str(v).replace('xfds', 'ks')
+            v = str(v).replace('qfds', 'ks')
+            v = str(v).replace('xfyqy', 'xfqy')
+            v = str(v).replace('qfyqy', 'ysqy')
             houses_temp += k + "|" + v + ","
         houses = houses_temp
         m = hashlib.md5()
@@ -71,4 +75,5 @@ class BuildingSpider(scrapy.Spider):
         item['open_date'] = open_date
         item['houses'] = houses
         item['digest'] = digest
+        # logging.info("project=%s,building=%s,project_area=%s", property_name, building_name, project_area)
         return item

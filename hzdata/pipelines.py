@@ -75,15 +75,17 @@ class HousePipeline(object):
                 building_code = item['building_code']
                 property_name = item['property_name']
                 building_name = item['building_name']
+                project_area = item['project_area']
                 open_date = item['open_date']
                 houses = item['houses']
                 digest = item['digest']
                 gmt_created = datetime.now()
                 self.cursor.execute(
                     """insert into building(gmt_created, project_code, building_code, property_name, building_name, 
-                    open_date, houses, digest) 
-                    value (%s, %s,%s,%s,%s,%s,%s,%s)""",
-                    (gmt_created, project_code, building_code, property_name, building_name, open_date, houses, digest))
+                    open_date, houses, digest, project_area) 
+                    value (%s, %s,%s,%s,%s,%s,%s,%s,%s)""",
+                    (gmt_created, project_code, building_code, property_name, building_name, open_date, houses, digest,
+                     project_area))
                 self.connect.commit()
             except Exception as error:
                 logging.error(error)
