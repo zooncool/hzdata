@@ -67,7 +67,10 @@ class Analysis(HousePipeline):
                             if len(pre_house_array) > index and cur_house != pre_house_array[index]:
                                 house_code = str(cur_house).split("|")[0]
                                 new_state = str(cur_house).split("|")[1]
-                                old_state = str(pre_house_array[index]).split("|")[1]
+                                if len(pre_house_array[index]) > 0:
+                                    old_state = str(pre_house_array[index]).split("|")[1]
+                                else:
+                                    old_state = 'ks'
                                 self.cursor.execute(save_sql,
                                                 (datetime.now(), cur_project_code, cur_building_code,
                                                  cur_property_name, cur_building_name, house_code, new_state,
