@@ -64,7 +64,7 @@ class Analysis(HousePipeline):
                         cur_house_array = str(cur_houses).split(",")
                         pre_house_array = str(pre_houses).split(",")
                         for index, cur_house in enumerate(cur_house_array):
-                            if len(pre_house_array) > index and cur_house != pre_house_array[index]:
+                            if len(pre_house_array) > index and cur_house != pre_house_array[index] and len(cur_house) > 0:
                                 house_code = str(cur_house).split("|")[0]
                                 new_state = str(cur_house).split("|")[1]
                                 if len(pre_house_array[index]) > 0:
