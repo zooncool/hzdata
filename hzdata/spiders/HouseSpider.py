@@ -54,7 +54,7 @@ class HouseSpider(scrapy.Spider):
         # floor = response.xpath("//table[1]//tr[5]/td[1]/text()").extract_first().strip()
         # floor_height = response.xpath("//table[1]//tr[5]/td[2]/text()").extract_first().strip()
         # house_orientation = response.xpath("//table[1]//tr[6]/td[1]/text()").extract_first().strip()
-        house_construction = response.xpath("//table[1]//tr[4]/td[2]/text()").extract_first().strip()
+        house_construction = response.xpath("//table[1]//tr[4]/td[1]/text()").extract_first().strip()
         is_public = response.xpath("//table[1]//tr[5]/td[1]/text()").extract_first().strip()
         is_back_moving = response.xpath("//table[1]//tr[5]/td[2]/text()").extract_first().strip()
         is_oneself = response.xpath("//table[1]//tr[6]/td[1]/text()").extract_first().strip()
