@@ -24,11 +24,10 @@ class BuildingSpider(scrapy.Spider):
 
     def parse_property(self, response):
         property_name = response.xpath("//div[@class='Salestable']//tr[1]/td[1]/text()").extract_first()
-        open_date = response.xpath("//div[@class='Salestable']//tr[6]/td[1]/text()").extract_first().strip()
-        open_date = str(open_date).replace('\n', '').strip() if open_date is not None else None
+        open_date = '0000-00-00'
         project_code = parse_qs(urlparse(str(response.url)).query)['ProjectCode'][0]
         project_area = "惠城区"
-        for building in response.xpath("//div[@class='Salestable']//tr[8]//tr/td[6]/a/@href").extract():
+        for building in response.xpath("//div[@class='Salestable']//tr[6]//tr/td[6]/a/@href").extract():
             building = self.SPIDER_HOST + building
             request = SplashRequest(building, self.parse_building, args={'wait': 0.5})
             request.meta['property_name'] = property_name

@@ -21,7 +21,7 @@ class HouseSpider(scrapy.Spider):
 
     def parse_property(self, response):
         project_code = parse_qs(urlparse(str(response.url)).query)['ProjectCode'][0]
-        for building in response.xpath("//div[@class='Salestable']//tr[8]//tr/td[6]/a/@href").extract():
+        for building in response.xpath("//div[@class='Salestable']//tr[6]//tr/td[6]/a/@href").extract():
             building = self.SPIDER_HOST + building
             request = SplashRequest(building, self.parse_building, args={'wait': 0.5})
             request.meta['project_code'] = project_code
@@ -50,24 +50,24 @@ class HouseSpider(scrapy.Spider):
         building_name = response.xpath("//table[1]//tr[2]/td[2]/text()").extract_first().strip()
         house_name = response.xpath("//table[1]//tr[3]/td[1]/text()").extract_first().strip()
         plan_purpose = response.xpath("//table[1]//tr[3]/td[2]/text()").extract_first().strip()
-        house_purpose = response.xpath("//table[1]//tr[4]/td[1]/text()").extract_first().strip()
-        floor = response.xpath("//table[1]//tr[5]/td[1]/text()").extract_first().strip()
-        floor_height = response.xpath("//table[1]//tr[5]/td[2]/text()").extract_first().strip()
-        house_orientation = response.xpath("//table[1]//tr[6]/td[1]/text()").extract_first().strip()
-        house_construction = response.xpath("//table[1]//tr[6]/td[2]/text()").extract_first().strip()
-        is_public = response.xpath("//table[1]//tr[7]/td[1]/text()").extract_first().strip()
-        is_back_moving = response.xpath("//table[1]//tr[7]/td[2]/text()").extract_first().strip()
-        is_oneself = response.xpath("//table[1]//tr[8]/td[1]/text()").extract_first().strip()
-        is_pre_sell = response.xpath("//table[1]//tr[8]/td[2]/text()").extract_first().strip()
-        price = response.xpath("//table[1]//tr[9]/td[1]/text()").extract_first().strip()
-        pre_total_square = response.xpath("//table[1]//tr[11]/td[1]/text()").extract_first().strip()
-        actual_total_square = response.xpath("//table[1]//tr[11]/td[2]/text()").extract_first().strip()
-        pre_inner_square = response.xpath("//table[1]//tr[12]/td[1]/text()").extract_first().strip()
-        actual_inner_square = response.xpath("//table[1]//tr[12]/td[2]/text()").extract_first().strip()
-        pre_public_square = response.xpath("//table[1]//tr[13]/td[1]/text()").extract_first().strip()
-        actual_public_square = response.xpath("//table[1]//tr[13]/td[2]/text()").extract_first().strip()
-        is_pledge = response.xpath("//table[1]//tr[15]/td[1]/text()").extract_first().strip()
-        is_seal = response.xpath("//table[1]//tr[15]/td[2]/text()").extract_first().strip()
+        # house_purpose = response.xpath("//table[1]//tr[4]/td[1]/text()").extract_first().strip()
+        # floor = response.xpath("//table[1]//tr[5]/td[1]/text()").extract_first().strip()
+        # floor_height = response.xpath("//table[1]//tr[5]/td[2]/text()").extract_first().strip()
+        # house_orientation = response.xpath("//table[1]//tr[6]/td[1]/text()").extract_first().strip()
+        house_construction = response.xpath("//table[1]//tr[4]/td[2]/text()").extract_first().strip()
+        is_public = response.xpath("//table[1]//tr[5]/td[1]/text()").extract_first().strip()
+        is_back_moving = response.xpath("//table[1]//tr[5]/td[2]/text()").extract_first().strip()
+        is_oneself = response.xpath("//table[1]//tr[6]/td[1]/text()").extract_first().strip()
+        is_pre_sell = response.xpath("//table[1]//tr[6]/td[2]/text()").extract_first().strip()
+        price = response.xpath("//table[1]//tr[7]/td[1]/text()").extract_first().strip()
+        pre_total_square = response.xpath("//table[1]//tr[9]/td[1]/text()").extract_first().strip()
+        actual_total_square = response.xpath("//table[1]//tr[9]/td[2]/text()").extract_first().strip()
+        pre_inner_square = response.xpath("//table[1]//tr[10]/td[1]/text()").extract_first().strip()
+        actual_inner_square = response.xpath("//table[1]//tr[10]/td[2]/text()").extract_first().strip()
+        pre_public_square = response.xpath("//table[1]//tr[11]/td[1]/text()").extract_first().strip()
+        actual_public_square = response.xpath("//table[1]//tr[11]/td[2]/text()").extract_first().strip()
+        is_pledge = response.xpath("//table[1]//tr[13]/td[1]/text()").extract_first().strip()
+        is_seal = response.xpath("//table[1]//tr[13]/td[2]/text()").extract_first().strip()
 
         item['project_code'] = project_code
         item['building_code'] = building_code
@@ -76,10 +76,10 @@ class HouseSpider(scrapy.Spider):
         item['building_name'] = building_name
         item['house_name'] = house_name
         item['plan_purpose'] = plan_purpose
-        item['house_purpose'] = house_purpose
-        item['floor'] = floor
-        item['floor_height'] = floor_height
-        item['house_orientation'] = house_orientation
+        item['house_purpose'] = ''
+        item['floor'] = ''
+        item['floor_height'] = ''
+        item['house_orientation'] = ''
         item['house_construction'] = house_construction
         item['is_public'] = is_public
         item['is_back_moving'] = is_back_moving
