@@ -78,7 +78,7 @@ class HouseSpider(scrapy.Spider):
         item['plan_purpose'] = plan_purpose
         item['house_purpose'] = ''
         item['floor'] = ''
-        item['floor_height'] = ''
+        item['floor_height'] = 0
         item['house_orientation'] = ''
         item['house_construction'] = house_construction
         item['is_public'] = is_public
