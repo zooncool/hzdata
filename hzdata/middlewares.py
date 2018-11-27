@@ -6,7 +6,9 @@
 # http://doc.scrapy.org/en/latest/topics/spider-middleware.html
 
 from scrapy import signals
-
+import random
+import base64
+from hzdata import settings
 
 class HzdataSpiderMiddleware(object):
     # Not all methods need to be defined. If a method is not defined,
@@ -54,3 +56,30 @@ class HzdataSpiderMiddleware(object):
 
     def spider_opened(self, spider):
         spider.logger.info('Spider opened: %s' % spider.name)
+
+
+class RandomUserAgent(object):
+    """Randomly rotate user agents based on a list of predefined ones"""
+
+    def __init__(self, agents):
+        self.agents = agents
+
+    @classmethod
+    def from_crawler(cls, crawler):
+        return cls(crawler.settings.getlist('USER_AGENTS'))
+
+    def process_request(self, request, spider):
+        request.headers.setdefault('User-Agent', random.choice(self.agents))
+
+
+class ProxyMiddleware(object):
+    def process_request(self, request, spider):
+        proxy = random.choice(settings.PROXIES)
+        if proxy['user_pass'] is not None:
+            request.meta['proxy'] = "http://%s" % proxy['ip_port']
+            encoded_user_pass = base64.encodestring(proxy['user_pass'])
+            request.headers['Proxy-Authorization'] = 'Basic ' + encoded_user_pass
+            print("**************ProxyMiddleware have pass************" + proxy['ip_port'])
+        else:
+            print("**************ProxyMiddleware no pass************" + proxy['ip_port'])
+            request.meta['proxy'] = "http://%s" % proxy['ip_port']
